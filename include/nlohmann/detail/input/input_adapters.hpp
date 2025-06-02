@@ -444,11 +444,11 @@ struct container_input_adapter_factory {};
 
 template<typename ContainerType>
 struct container_input_adapter_factory< ContainerType,
-       void_t<decltype(begin(std::declval<ContainerType>()), end(std::declval<ContainerType>()))>>
+       void_t<decltype(begin(std::declval<ContainerType&>()), end(std::declval<ContainerType&>()))>>
        {
-           using adapter_type = decltype(input_adapter(begin(std::declval<ContainerType>()), end(std::declval<ContainerType>())));
+           using adapter_type = decltype(input_adapter(begin(std::declval<ContainerType&>()), end(std::declval<ContainerType&>())));
 
-           static adapter_type create(const ContainerType& container)
+           static adapter_type create(ContainerType& container)
 {
     return input_adapter(begin(container), end(container));
 }
@@ -457,7 +457,13 @@ struct container_input_adapter_factory< ContainerType,
 }  // namespace container_input_adapter_factory_impl
 
 template<typename ContainerType>
-typename container_input_adapter_factory_impl::container_input_adapter_factory<ContainerType>::adapter_type input_adapter(const ContainerType& container)
+typename container_input_adapter_factory_impl::container_input_adapter_factory<const ContainerType>::adapter_type input_adapter(const ContainerType& container)
+{
+    return container_input_adapter_factory_impl::container_input_adapter_factory<const ContainerType>::create(container);
+}
+
+template<typename ContainerType>
+typename container_input_adapter_factory_impl::container_input_adapter_factory<ContainerType>::adapter_type input_adapter(ContainerType& container)
 {
     return container_input_adapter_factory_impl::container_input_adapter_factory<ContainerType>::create(container);
 }
